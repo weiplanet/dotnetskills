@@ -424,6 +424,8 @@ dotnet add package Microsoft.Windows.CsWinRT
 
 ## Validation
 
+### Review checklist
+
 - [ ] Every signature matches the native header exactly (types, sizes)
 - [ ] Calling convention specified if targeting Windows x86; omitted otherwise
 - [ ] String encoding is explicit — no reliance on defaults or `CharSet.Auto`
@@ -435,6 +437,17 @@ dotnet add package Microsoft.Windows.CsWinRT
 - [ ] `CLong`/`CULong` used for C `long`/`unsigned long` in cross-platform code
 - [ ] If using `CLong`/`CULong` with `LibraryImport`, `[assembly: DisableRuntimeMarshalling]` is applied
 - [ ] No `bool` without explicit `MarshalAs`
+
+### Runnable validation steps
+
+1. **Build with interop analyzers enabled** — confirm zero `SYSLIB1054`–`SYSLIB1057` warnings:
+   ```xml
+   <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+   <EnableAotAnalyzer>true</EnableAotAnalyzer>
+   ```
+2. **Verify struct sizes match** — for every struct crossing the boundary, assert `Marshal.SizeOf<T>()` equals the native `sizeof`
+3. **Round-trip test** — call the native function with known inputs and verify expected outputs
+4. **Test with non-ASCII strings** — pass strings containing characters outside the ASCII range to confirm encoding is correct
 
 ## Common Pitfalls
 
