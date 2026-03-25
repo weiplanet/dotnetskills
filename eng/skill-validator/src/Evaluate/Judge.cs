@@ -41,12 +41,13 @@ public static class Judge
             timeoutMs: options.Timeout,
             verbose: options.Verbose,
             timeoutLabel: "Judge — try --judge-timeout with a higher value, or check --verbose for stuck permission requests",
-            onPermissionRequest: request =>
+            onPermissionRequest: (request, invocation) =>
             {
-                var result = AgentRunner.CheckPermission(request, options.WorkDir, options.SkillPath, options.Verbose ? log : null, "judge");
+                // Judge sessions: deny all tool permissions. Judging should be a
+                // pure LLM task — no file access or tool execution needed.
                 return Task.FromResult(new PermissionRequestResult
                 {
-                    Kind = result ? PermissionRequestResultKind.Approved : PermissionRequestResultKind.DeniedByRules,
+                    Kind = PermissionRequestResultKind.DeniedByRules,
                 });
             },
             cancellationToken: cancellationToken);

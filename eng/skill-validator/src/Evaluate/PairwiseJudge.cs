@@ -80,13 +80,13 @@ public static class PairwiseJudge
             timeoutMs: options.Timeout,
             verbose: options.Verbose,
             timeoutLabel: $"Pairwise judge ({direction})",
-            onPermissionRequest: request =>
+            onPermissionRequest: (request, invocation) =>
             {
-                var extraDirs = options.SkilledWorkDir is not null ? new[] { options.SkilledWorkDir } : null;
-                var result = AgentRunner.CheckPermission(request, options.WorkDir, options.SkillPath, options.Verbose ? log : null, "pairwise-judge", additionalAllowedDirs: extraDirs);
+                // Pairwise judge sessions: deny all tool permissions. The judge
+                // should operate purely on the provided text — no tool execution.
                 return Task.FromResult(new PermissionRequestResult
                 {
-                    Kind = result ? PermissionRequestResultKind.Approved : PermissionRequestResultKind.DeniedByRules,
+                    Kind = PermissionRequestResultKind.DeniedByRules,
                 });
             },
             cancellationToken: cancellationToken);
